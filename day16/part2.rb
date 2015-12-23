@@ -1,4 +1,6 @@
 aunts = []
+MINIMUM_RANGE_COMPOUNDS = ['cats', 'trees']
+MAXIMUM_RANGE_COMPOUNDS = ['pomeranians', 'goldfish']
 
 contents = File.open('input.txt', 'r') { |f| f.read }
 
@@ -17,7 +19,16 @@ analysis.each_line do |line|
   compound = line[/^([a-zA-Z]+):/, 1]
   number = line[/:\s([0-9]+)$/, 1].to_i
 
-  sues = sues.select { |aunt| next(true) if aunt[compound].nil? || aunt[compound] == number }
+  sues = sues.select do |aunt|
+    next(true) if aunt[compound].nil?
+    if MINIMUM_RANGE_COMPOUNDS.include?(compound)
+     next(true) if aunt[compound] > number
+    elsif MAXIMUM_RANGE_COMPOUNDS.include?(compound)
+      next(true) if aunt[compound] < number
+    else
+      next(true) if aunt[compound] == number
+    end
+  end
 end
 
 p aunts.index(sues.first) + 1
