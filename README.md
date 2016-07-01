@@ -1,2 +1,2 @@
-# AdventOfCode-solutions
+# adventofcode-solutions
 My solutions to Advent of Code 2015 in Ruby
