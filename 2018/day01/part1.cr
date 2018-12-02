@@ -1,5 +1,1 @@
-freq = 0
-File.each_line("#{__DIR__}/input.txt") do |line|
-    freq += line.to_i
-end
-puts freq
+p File.read_lines("#{__DIR__}/input.txt").reduce(0) { |freq, line| freq + line.to_i }
