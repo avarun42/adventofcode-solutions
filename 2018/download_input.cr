@@ -20,7 +20,11 @@ end
 day_string = sprintf "%02d", day
 dir_path = "#{__DIR__}/day#{day_string}"
 file_path = "#{dir_path}/input.txt"
-abort("Input for day #{day} has already been downloaded.") if File.file?(file_path)
+if File.file?(file_path)
+    puts "Input for day #{day} has already been downloaded. Would you like to overwrite it? (Y/N)"
+    answer = gets
+    exit unless !answer.nil? && answer.upcase.includes? "Y"
+end
 
 response = HTTP::Client.get(
     "https://adventofcode.com/2018/day/#{day}/input",
@@ -32,5 +36,6 @@ elsif response.status_code == 404
     abort("Input for day #{day} is not online yet or does not exist.")
 end
 
-Dir.mkdir(dir_path)
+Dir.mkdir(dir_path) unless Dir.exists?(dir_path)
 File.write(file_path, response.body)
+puts "Download complete."
