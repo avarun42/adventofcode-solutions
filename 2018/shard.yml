@@ -1,0 +1,13 @@
+name: adventofcode-2018-solutions
+version: 0.1.0
+
+authors:
+  - Varun Arora <varun@arora.me>
+
+targets:
+  blah:
+    main: src/blah.cr
+
+crystal: 0.27.0
+
+license: BSD-3-Clause

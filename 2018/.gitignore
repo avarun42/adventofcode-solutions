@@ -1,0 +1,8 @@
+### Crystal ###
+/docs/
+/lib/
+/bin/
+/.shards/
+*.dwarf
+
+secrets.json
