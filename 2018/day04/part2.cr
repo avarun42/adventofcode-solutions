@@ -1,24 +1,25 @@
-guard_id = -1
-guard_sleep_events = File.read_lines("#{__DIR__}/input.txt").sort.map do |line|
-    nums = line.scan(/-?\d+/).map(&.[0].to_i)
-    if line.includes? "begins shift"
-        guard_id = nums[5]
-        next
-    end
-    starts_sleep = line.includes? "falls asleep"
-    {nums[4], guard_id, starts_sleep}
+def get_nums_and_state(line)
+    { 
+        line.scan(/-?\d+/).map(&.[0].to_i),
+        line.includes?("begins shift") ? nil : line.includes?("falls asleep")
+    }
 end
 
-guard_sleep_times = guard_sleep_events.compact.group_by(&.[1]).transform_values do |sleep_events|
-    abort("something wrong") if sleep_events.size.odd? # should fall asleep then wake up
-    sleep_events.in_groups_of(2, {60, -1, false}).flat_map do |(first, second)|
-        (first[0]...second[0]).to_a
-    end
-end
+events, _id = File.read_lines("#{__DIR__}/input.txt")
+                  .sort
+                  .reduce({ [] of Tuple(Int32, Int32, Bool), -1 }) do |( events, id ), line|
+                    nums, state = get_nums_and_state(line)
+                    state.nil? ? { events, nums[5] } : { events << { nums[4], id, state }, id }
+                  end
 
-most_common_sleep = guard_sleep_times.flat_map { |id, times| times.map { |time| {time, id} } }
-                                     .group_by(&.itself)
-                                     .max_by(&.[1].size)
-                                     .first
+asleep_times = events.group_by(&.[1])
+                     .transform_values(&.map(&.[0]).in_groups_of(2, 60).flat_map { |( start, end )|
+                        (start...end).to_a # Assume alternating sequence of wake and sleep
+                     })
 
-puts most_common_sleep[0] * most_common_sleep[1]
+most_frequent_sleep = asleep_times.flat_map { |id, times| times.map { |time| {time, id} } }
+                                  .group_by(&.itself)
+                                  .max_by(&.[1].size)
+                                  .first
+
+puts most_frequent_sleep[0] * most_frequent_sleep[1]
