@@ -1,20 +1,13 @@
 polymer = File.read_lines("#{__DIR__}/input.txt")[0].chars
+modified = true
 
-loop do
-    new_polymer = [] of Char
-    skip = false
-    polymer.each_cons(2) do |(first, second)|
-        if skip
-            skip = false
-        elsif first.downcase == second.downcase && first.lowercase? != second.lowercase?
-            skip = true
-        else
-            new_polymer << first
-        end
+while modified
+    polymer, modified = polymer.reduce({ [] of Char, false }) do |(polymers, modified), cur|
+        prev = polymers[-1]?
+        (prev && prev.downcase == cur.downcase && prev.lowercase? != cur.lowercase?) ?
+            { polymers[0...-1], true } :
+            { polymers << cur, modified }
     end
-    new_polymer << polymer[-1] unless skip
-    break unless new_polymer.size < polymer.size
-    polymer = new_polymer
 end
 
 puts polymer.size

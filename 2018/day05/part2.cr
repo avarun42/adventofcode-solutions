@@ -1,23 +1,16 @@
 base_polymer = File.read_lines("#{__DIR__}/input.txt")[0].chars
+unit_types = base_polymer.map { |unit| { unit.upcase, unit.downcase } }.to_set
 
-unit_types = Set.new(base_polymer.map(&.upcase))
-min_polymer_length = unit_types.min_of do |unit_type|
-    polymer = base_polymer.reject(&.==(unit_type)).reject(&.==(unit_type.downcase))
-    loop do
-        new_polymer = [] of Char
-        skip = false
-        polymer.each_cons(2) do |(first, second)|
-            if skip
-                skip = false
-            elsif first.downcase == second.downcase && first.lowercase? != second.lowercase?
-                skip = true
-            else
-                new_polymer << first
-            end
+min_polymer_length = unit_types.min_of do |(unit_uppercase, unit_lowercase)|
+    polymer = base_polymer.reject(&.==(unit_uppercase)).reject(&.==(unit_lowercase))
+    modified = true
+    while modified
+        polymer, modified = polymer.reduce({ [] of Char, false }) do |(polymers, modified), cur|
+            prev = polymers[-1]?
+            (prev && prev.downcase == cur.downcase && prev.lowercase? != cur.lowercase?) ?
+                { polymers[0...-1], true } :
+                { polymers << cur, modified }
         end
-        new_polymer << polymer[-1] unless skip
-        break unless new_polymer.size < polymer.size
-        polymer = new_polymer
     end
     polymer.size
 end
